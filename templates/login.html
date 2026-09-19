@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <title>SGA - Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 flex items-center justify-center h-screen">
+  <div class="bg-white p-8 rounded-lg shadow-lg w-96 border-t-4 border-blue-600">
+    <h1 class="text-2xl font-bold text-gray-800 text-center">SGA Corp</h1>
+    <p class="text-gray-500 text-sm text-center mb-6">Gestão de Almoxarifado</p>
+    {% if erro %}
+      <div class="bg-red-100 text-red-700 p-2 rounded mb-4 text-sm">{{ erro }}</div>
+    {% endif %}
+    <form action="/login" method="post" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Matrícula</label>
+        <input type="text" name="matricula" placeholder="Ex: COL-002" class="mt-1 block w-full px-3 py-2 border rounded-md" required>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Senha</label>
+        <input type="password" name="senha" class="mt-1 block w-full px-3 py-2 border rounded-md" required>
+      </div>
+      <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 font-semibold">Acessar Sistema</button>
+    </form>
+  </div>
+</body>
+</html>

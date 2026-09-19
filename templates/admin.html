@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head><title>SGA - Painel de Direção</title><script src="https://cdn.tailwindcss.com"></script></head>
+<body class="bg-slate-900 p-8 text-white">
+  <div class="max-w-4xl mx-auto bg-slate-800 p-8 rounded shadow border-t-4 border-red-500">
+    <h1 class="text-3xl font-bold text-red-500 border-b border-slate-700 pb-4">PAINEL DE DIREÇÃO (ACESSO RESTRITO)</h1>
+    <p class="mt-4 text-gray-300">Atenção, {{ colab.nome }}. Você está visualizando dados confidenciais de todos os colaboradores.</p>
+
+    <div class="mt-6 space-y-4">
+      {% for r in reqs %}
+      <div class="bg-slate-700 p-4 rounded border border-slate-600">
+        <p><strong>Colaborador:</strong> {{ r.colaborador }} ({{ r.matricula }})</p>
+        <p><strong>Ativo:</strong> <span class="text-yellow-400">{{ r.equipamento }}</span></p>
+        <p><strong>Valor/Risco:</strong> R$ {{ "%.2f"|format(r.valor) }}</p>
+        <p><strong>Status:</strong> <span class="bg-red-900 text-red-200 px-2 py-1 rounded text-sm">{{ r.status }}</span></p>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="mt-8"><a href="/dashboard" class="text-blue-400 hover:underline">← Voltar ao Dashboard Normal</a></div>
+  </div>
+</body>
+</html>

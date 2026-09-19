@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head><title>SGA - Recibo</title><script src="https://cdn.tailwindcss.com"></script></head>
+<body class="bg-slate-100 p-8">
+    <div class="mt-4 space-y-2">
+      <p><strong>Colaborador:</strong> {{ req.colaborador }} <span class="text-gray-500">({{ req.matricula }})</span></p>
+      <p><strong>Equipamento:</strong> {{ req.equipamento }}</p>
+      <p><strong>Valor Confidencial do Ativo:</strong> R$ {{ "%.2f"|format(req.valor) }}</p>
+      <p><strong>Status:</strong> <span class="bg-yellow-200 text-yellow-800 px-2 py-1 rounded text-sm">{{ req.status }}</span></p>
+      <p><strong>Data:</strong> {{ req.data }}</p>
+    </div>
+    <div class="mt-8"><a href="/dashboard" class="text-blue-600 hover:underline">← Voltar ao Dashboard</a></div>
+  </div>
+</body>
+</html>
