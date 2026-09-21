@@ -13,10 +13,17 @@
   <div class="max-w-4xl mx-auto mt-8 p-6 bg-white rounded-lg shadow space-y-6">
     <h2 class="text-xl font-bold border-b pb-2">Acesso Rápido</h2>
     <div class="grid grid-cols-2 gap-4">
-      <a href="/recibo/1" class="block p-4 bg-gray-50 border rounded hover:bg-gray-100">
-        <h3 class="font-bold text-blue-700">Ver Meu Recibo de Retirada</h3>
-        <p class="text-sm text-gray-600">Acesse o comprovante dos seus equipamentos.</p>
-      </a>
+      {% if meu_recibo_id %}
+        <a href="/recibo/{{ meu_recibo_id }}" class="block p-4 bg-gray-50 border rounded hover:bg-gray-100">
+          <h3 class="font-bold text-blue-700">Ver Meu Recibo de Retirada</h3>
+          <p class="text-sm text-gray-600">Acesse o comprovante dos seus equipamentos.</p>
+        </a>
+        {% else %}
+        <div class="block p-4 bg-gray-100 border rounded opacity-60 cursor-not-allowed">
+          <h3 class="font-bold text-gray-500">Ver Meu Recibo de Retirada</h3>
+          <p class="text-sm text-gray-500">Você não possui recibos de retirada.</p>
+        </div>
+      {% endif %}
       <a href="/inventario/buscar" class="block p-4 bg-gray-50 border rounded hover:bg-gray-100">
         <h3 class="font-bold text-blue-700">Consultar Inventário</h3>
         <p class="text-sm text-gray-600">Pesquise ativos na base (Ex: Monitor).</p>

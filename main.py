@@ -85,6 +85,18 @@ def dashboard(request: Request):
     user = current_user_optional(request)
     if not user:
         return RedirectResponse("/login")
+
+    conn = get_conn()
+    row = conn.execute(
+        "SELECT MIN(id) AS meu_recibo FROM documents WHERE user_id = ?",
+        (user["id"],),
+    ).fetchone()
+    conn.close()
+
+    meu_recibo_id = row["meu_recibo"] if row and row["meu_recibo"] else None
+
     return templates.TemplateResponse(
-        request, "dashboard.html", {"colab": user}
+        request,
+        "dashboard.html",
+        {"colab": user, "meu_recibo_id": meu_recibo_id},
     )
