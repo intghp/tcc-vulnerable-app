@@ -17,15 +17,7 @@ def read_document(
     get_current_user(request, authorization)
 
     conn = get_conn()
-    r = conn.execute(
-        """
-        SELECT d.*, u.nome AS colaborador, u.matricula
-        FROM documents d
-        JOIN users u ON u.id = d.user_id
-        WHERE d.id = ?
-        """,
-        (doc_id,),
-    ).fetchone()
+    r = conn.execute("SELECT d.*, u.nome AS colaborador, u.matricula FROM documents d JOIN users u ON u.id = d.user_id WHERE d.id = ?", (doc_id,)).fetchone()
     conn.close()
 
     if not r:
@@ -43,15 +35,7 @@ def painel_admin(
     user = get_current_user(request, authorization)
 
     conn = get_conn()
-    rows = conn.execute(
-        """
-        SELECT r.id, r.equipamento, r.valor, r.status, r.data,
-               u.nome AS colaborador, u.matricula
-        FROM documents r
-        JOIN users u ON u.id = r.user_id
-        ORDER BY r.data DESC
-        """
-    ).fetchall()
+    rows = conn.execute("SELECT r.id, r.equipamento, r.valor, r.status, r.data, u.nome AS colaborador, u.matricula FROM documents r JOIN users u ON u.id = r.user_id ORDER BY r.data DESC").fetchall()
     conn.close()
 
     return templates.TemplateResponse(
