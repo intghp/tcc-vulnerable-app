@@ -124,31 +124,18 @@ def create_token(user_id: int, matricula: str, nome: str, role: str) -> str:
     return jwt.encode(payload, SECRET_KEY, algorithm=JWT_ALGORITHM)
 
 
-def get_current_user(
-    request: Request,
-    authorization: str = Header(None),
-) -> dict:
-    
-    token = None
-
-    if isinstance(authorization, str) and authorization.startswith("Bearer "):
-        token = authorization.replace("Bearer ", "")
-
+def get_current_user(request: Request) -> dict:
+    token = request.cookies.get("sga_token")
     if not token:
-        token = request.cookies.get("sga_token")
-
-    if not token:
-        raise HTTPException(401, "Unauthorized")
-
+        raise HTTPException(status_code=401, detail="Unauthorized")
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[JWT_ALGORITHM])
+        user = get_user_by_id(int(payload["sub"]))
+        if not user:
+            raise HTTPException(401, "Unauthorized")
+        return user
     except Exception:
-        raise HTTPException(401, "Invalid token")
-
-    user = get_user_by_id(int(payload["sub"]))
-    if not user:
-        raise HTTPException(401, "Unauthorized")
-    return user
+        raise HTTPException(status_code=401, detail="Invalid token")
 
 
 def current_user_optional(request: Request) -> dict | None:
