@@ -12,7 +12,7 @@ from core import (
     templates,
     verify_password,
 )
-from vulns import bac, misconfig, sqli
+from vulns import bac, sqli
 
 
 @asynccontextmanager
@@ -24,22 +24,61 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="SGA · Sistema de Gestão de Almoxarifado",
     version="2.4.1",
-    debug=True,
-    docs_url="/docs",
+    debug=False,
+    docs_url=None,
+    redoc_url=None,
+    openapi_url=None,
     lifespan=lifespan,
 )
 
+ALLOWED_ORIGINS = [
+    origin.strip()
+    for origin in __import__("os").getenv(
+        "SGA_ALLOWED_ORIGINS", "http://localhost:8000"
+    ).split(",")
+    if origin.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type", "Authorization"],
 )
+
+
+@app.middleware("http")
+async def security_headers(request: Request, call_next):
+    response = await call_next(request)
+
+    response.headers["Content-Security-Policy"] = (
+        "default-src 'self'; "
+        "style-src 'self' 'unsafe-inline'; "
+        "script-src 'self'; "
+        "img-src 'self' data:; "
+        "font-src 'self' data:; "
+        "object-src 'none'; "
+        "base-uri 'self'; "
+        "frame-ancestors 'none'; "
+        "form-action 'self'"
+    )
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Cache-Control"] = "no-store"
+    response.headers["Pragma"] = "no-cache"
+
+    if __import__("os").getenv("SGA_USE_HTTPS", "false").lower() == "true":
+        response.headers["Strict-Transport-Security"] = (
+            "max-age=31536000; includeSubDomains"
+        )
+
+    return response
+
 
 app.include_router(bac.router)
 app.include_router(sqli.router)
-app.include_router(misconfig.router)
 
 
 @app.get("/", include_in_schema=False)
@@ -69,14 +108,24 @@ def login_submit(
 
     token = create_token(user["id"], user["matricula"], user["nome"], user["role"])
     resp = RedirectResponse("/dashboard", status_code=302)
-    resp.set_cookie("sga_token", token)
+    resp.set_cookie(
+        "sga_token",
+        token,
+        httponly=True,
+        secure=__import__("os").getenv("SGA_USE_HTTPS", "false").lower() == "true",
+        samesite="lax",
+        max_age=60 * 24 * 30 * 60,
+    )
     return resp
 
 
 @app.get("/logout")
 def logout():
     resp = RedirectResponse("/login", status_code=302)
-    resp.delete_cookie("sga_token")
+    resp.delete_cookie("sga_token",
+    httponly=True,
+    samesite="lax",
+    )
     return resp
 
 
