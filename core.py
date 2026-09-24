@@ -12,11 +12,16 @@ import jwt
 from fastapi import Header, HTTPException, Request
 from fastapi.templating import Jinja2Templates
 
-SECRET_KEY = "sga-mva-2024-Xy9kLmPqR7sT3uVwZ5yN8cD2fG6hJ1kL"
+SECRET_KEY = os.getenv("SGA_SECRET_KEY")
+if not SECRET_KEY:
+    raise RuntimeError(
+        "SGA_SECRET_KEY não está configurada. "
+        "Defina a chave secreta no ambiente cmd ou powershell antes de iniciar o sistema."
+    )
+
 JWT_ALGORITHM = "HS256"
 TOKEN_EXPIRE_MIN = 60 * 24 * 30
 DB_PATH = Path("sga.db")
-
 templates = Jinja2Templates(directory="templates")
 
 def get_conn():
