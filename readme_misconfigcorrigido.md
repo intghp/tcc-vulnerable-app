@@ -13,6 +13,13 @@ Senha de banco removida do módulo de configuração.
 # Execução
 PowerShell:
 ```powershell
+python -c "import secrets; print(secrets.token_urlsafe(32))"
+$env:SGA_SECRET_KEY="COLE_AQUI_A_CHAVE_GERADA"
+$env:SGA_ALLOWED_ORIGINS="http://localhost:8000"
+$env:SGA_USE_HTTPS="false"
+```
+PowerShell:
+```powershell
 $env:SGA_SECRET_KEY = [Convert]::ToBase64String((1..32 | ForEach-Object { Get-Random -Maximum 256 }))
 $env:SGA_ALLOWED_ORIGINS = "http://localhost:8000"
 $env:SGA_USE_HTTPS = "false"
