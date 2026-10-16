@@ -12,11 +12,16 @@ import jwt
 from fastapi import Header, HTTPException, Request
 from fastapi.templating import Jinja2Templates
 
-SECRET_KEY = "sga-mva-2024-Xy9kLmPqR7sT3uVwZ5yN8cD2fG6hJ1kL"
+SECRET_KEY = os.getenv("SGA_SECRET_KEY")
+if not SECRET_KEY:
+    raise RuntimeError(
+        "SGA_SECRET_KEY não está configurada. "
+        "Defina a chave secreta no ambiente cmd ou powershell antes de iniciar o sistema."
+    )
+
 JWT_ALGORITHM = "HS256"
 TOKEN_EXPIRE_MIN = 60 * 24 * 30
 DB_PATH = Path("sga.db")
-
 templates = Jinja2Templates(directory="templates")
 
 def get_conn():
@@ -124,31 +129,18 @@ def create_token(user_id: int, matricula: str, nome: str, role: str) -> str:
     return jwt.encode(payload, SECRET_KEY, algorithm=JWT_ALGORITHM)
 
 
-def get_current_user(
-    request: Request,
-    authorization: str = Header(None),
-) -> dict:
-    
-    token = None
-
-    if isinstance(authorization, str) and authorization.startswith("Bearer "):
-        token = authorization.replace("Bearer ", "")
-
+def get_current_user(request: Request) -> dict:
+    token = request.cookies.get("sga_token")
     if not token:
-        token = request.cookies.get("sga_token")
-
-    if not token:
-        raise HTTPException(401, "Unauthorized")
-
+        raise HTTPException(status_code=401, detail="Unauthorized")
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[JWT_ALGORITHM])
+        user = get_user_by_id(int(payload["sub"]))
+        if not user:
+            raise HTTPException(401, "Unauthorized")
+        return user
     except Exception:
-        raise HTTPException(401, "Invalid token")
-
-    user = get_user_by_id(int(payload["sub"]))
-    if not user:
-        raise HTTPException(401, "Unauthorized")
-    return user
+        raise HTTPException(status_code=401, detail="Invalid token")
 
 
 def current_user_optional(request: Request) -> dict | None:
