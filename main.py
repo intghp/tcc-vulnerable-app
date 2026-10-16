@@ -52,7 +52,17 @@ app.add_middleware(
 async def security_headers(request: Request, call_next):
     response = await call_next(request)
 
-    response.headers["Content-Security-Policy"] = "default-src 'self'; style-src 'self'; script-src 'self' https://cdn.tailwindcss.com; img-src 'self' data:; font-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"
+    response.headers["Content-Security-Policy"] = (
+        "default-src 'self'; "
+        "style-src 'self' 'unsafe-inline'; "
+        "script-src 'self' https://cdn.tailwindcss.com; "
+        "img-src 'self' data:; "
+        "font-src 'self' data:; "
+        "object-src 'none'; "
+        "base-uri 'self'; "
+        "frame-ancestors 'none'; "
+        "form-action 'self'"
+    )
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
@@ -112,9 +122,10 @@ def login_submit(
 @app.get("/logout")
 def logout():
     resp = RedirectResponse("/login", status_code=302)
-    resp.delete_cookie("sga_token",
-    httponly=True,
-    samesite="lax",
+    resp.delete_cookie(
+        "sga_token",
+        httponly=True,
+        samesite="lax",
     )
     return resp
 

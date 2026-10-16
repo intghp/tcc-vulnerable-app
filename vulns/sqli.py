@@ -1,5 +1,5 @@
 """
-SQL Injection — UNION-based.
+SQL Injection — Corrigido utilizando Consultas Parametrizadas (Parameterized Queries).
 """
 from fastapi import APIRouter, Query, Request, Depends
 from fastapi.responses import HTMLResponse
@@ -15,9 +15,9 @@ def buscar_inventario(
     user: dict = Depends(get_current_user)
 ):
     conn = get_conn()
-    query = (f"SELECT nome, valor, status FROM equipment " f"WHERE nome LIKE '%{termo}%'")
+    query = "SELECT nome, valor, status FROM equipment WHERE nome LIKE ?"
     try:
-        rows = conn.execute(query).fetchall()
+        rows = conn.execute(query, (f"%{termo}%",)).fetchall()
     except Exception as e:
         conn.close()
         return HTMLResponse(f"Erro: {e}", status_code=400)
@@ -35,9 +35,13 @@ def relatorio_retiradas(
     user: dict = Depends(get_current_user)
 ):
     conn = get_conn()
-    query = (f"SELECT r.id, r.equipamento, r.valor, r.data, u.nome " f"FROM documents r JOIN users u ON u.id = r.user_id " f"WHERE u.nome LIKE '%{nome}%' ORDER BY r.data")
+    query = (
+        "SELECT r.id, r.equipamento, r.valor, r.data, u.nome "
+        "FROM documents r JOIN users u ON u.id = r.user_id "
+        "WHERE u.nome LIKE ? ORDER BY r.data"
+    )
     try:
-        rows = [dict(x) for x in conn.execute(query).fetchall()]
+        rows = [dict(x) for x in conn.execute(query, (f"%{nome}%",)).fetchall()]
     except Exception as e:
         conn.close()
         return HTMLResponse(f"Erro: {e}", status_code=400)
