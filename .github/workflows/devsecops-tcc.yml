@@ -2,7 +2,7 @@ name: TCC DevSecOps - SAST (Bandit) e DAST (OWASP ZAP)
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "vulns" ]
   workflow_dispatch:
 
 jobs:
