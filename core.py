@@ -8,9 +8,12 @@ import sqlite3
 from datetime import datetime, timedelta
 from pathlib import Path
 
+from dotenv import load_dotenv
 import jwt
 from fastapi import Header, HTTPException, Request
 from fastapi.templating import Jinja2Templates
+
+load_dotenv()
 
 SECRET_KEY = os.getenv("SGA_SECRET_KEY")
 if not SECRET_KEY:
